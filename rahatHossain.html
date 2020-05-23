@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>COVID-19 LIVE NEWS</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.5.0.min.js" integrity="sha256-xNzN2a4ltkB44Mc/Jz3pT4iU1cmeR0FkXs4pru/JxaQ=" crossorigin="anonymous"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+</head>
+
+<body>
+    <div class="container">
+        <div class="alert alert-success fade show mt-4 text-center" role="alert">
+            <h2><b>COVID-19 CORONAVIRUS PANDEMIC LIVE UPDATE (BANGLADESH)</b></h2>
+        </div>
+        <hr>
+        <h3 class="mt-3 text-center">District wise Coronavirus Cases</h3>
+        <marquee behavior="" direction="">
+            <b><div id="districts" style="display: flex;" class="mt-2"></div></b>
+        </marquee>
+        <hr>
+        <div class="row mb-5">
+            <div class="col-md-6">
+                <div id="app">
+                    <div class="card mt-2">
+                        <div class="alert alert-info fade show mt-3 text-center" role="alert">
+                            <h3>Total Cases</h3>
+                        </div>
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item text-center bg-secondary text-white">
+                                <b>Tested :</b>
+                                <h5>{{ tested }}</h5>
+                            </li>
+                            <li class="list-group-item text-center bg-secondary text-white">
+                                <b>Confirmed Cases</b>
+                                <h5>{{ confirmed }}</h5>
+                            </li>
+                            <li class="list-group-item text-center bg-secondary text-white">
+                                <b>Recovered</b>
+                                <h5>{{ recovered }}</h5>
+                            </li>
+                            <li class="list-group-item text-center bg-danger text-white">
+                                <b>Deaths :</b>
+                                <h5>{{ deaths }}</h5>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div id="app1">
+                    <div class="card mt-2">
+                        <div class="alert alert-info fade show mt-3 text-center" role="alert">
+                            <h3>Last 24 Hours</h3>
+                        </div>
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item text-center bg-secondary text-white">
+                                <b>Tested</b>
+                                <h5>{{ tested }}</h5>
+                            </li>
+                            <li class="list-group-item text-center bg-secondary text-white">
+                                <b>Confirmed Cases</b>
+                                <h5>{{ confirmed }}</h5>
+                            </li>
+                            <li class="list-group-item text-center bg-secondary text-white">
+                                <b>Recovered</b>
+                                <h5>{{ recovered }}</h5>
+                            </li>
+                            <li class="list-group-item text-center bg-danger text-white">
+                                <b>Deaths</b>
+                                <h5>{{ deaths }}</h5>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="navbar-light bg-light mt-1" id="applu">
+        <div class="text-center p-2">Last Update : {{ lastUpdate }}<br>Source : IEDCR; Developed by <a href="https://www.facebook.com/rahat.hossain.756" target="__blank">Md Rahat Hossain; </a></div>
+    </div>
+    <script>
+        $(function() {
+            $.get('https://covid.codeofamdad.com/api/districts', function(res) {
+                console.log(res);
+                res.data.forEach(function(district) {
+                    var ul = $("<ul></ul>");
+                    ul.append(`<li> <b class="text-danger">${district.name}</b>
+                    <br>Confirmed : ${district.confirmed}
+                    <br>Recovered : ${district.recovered}
+                    <br>Deaths : ${district.deaths} </li>`);
+                    $('#districts').append(ul);
+                });
+            });
+        });
+        var app = new Vue({
+            el: '#app',
+            data: {
+                confirmed: '',
+                recovered: '',
+                deaths: '',
+                tested: '',
+            },
+            created: function() {
+                function formatNumber(num) {
+                    return num.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')
+                }
+                axios.get('https://covid.codeofamdad.com/api/stats')
+                    .then(res => {
+                        // console.log(res.data.new.confirmed);
+                        this.confirmed = formatNumber(res.data.total.confirmed)
+                        this.recovered = formatNumber(res.data.total.recovered)
+                        this.deaths = formatNumber(res.data.total.deaths)
+                        this.tested = formatNumber(res.data.total.tested)
+                    })
+            }
+        })
+        var app1 = new Vue({
+            el: '#app1',
+            data: {
+                confirmed: '',
+                recovered: '',
+                deaths: '',
+                tested: '',
+            },
+            created: function() {
+                function formatNumber(num) {
+                    return num.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')
+                }
+                axios.get('https://covid.codeofamdad.com/api/stats')
+                    .then(res => {
+                        // console.log(res.data.last7Days.confirmed);
+                        this.confirmed = formatNumber(res.data.last.confirmed)
+                        this.recovered = formatNumber(res.data.last.recovered)
+                        this.deaths = formatNumber(res.data.last.deaths)
+                        this.tested = formatNumber(res.data.last.tested)
+                    })
+            }
+        })
+
+        var applu = new Vue({
+            el: '#applu',
+            data: {
+                lastUpdate: '',
+            },
+            created: function() {
+
+                axios.get('https://covid.codeofamdad.com/api/stats')
+                    .then(res => {
+                        this.lastUpdate = res.data.lastUpdate
+                    })
+            }
+        })
+    </script>
+</body>
+
+</html>
